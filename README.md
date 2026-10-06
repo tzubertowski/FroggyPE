@@ -5,6 +5,21 @@
 - 3D is rendered by a **software rasterizer**: this hardware has no GPU, and the stock
   firmware provides no `rename()`, `unlink()` or `getcwd()`.
 
+## SF3000 / TreeFrogUI
+
+Build the Linux hard-float libretro core with the SF3000 SDK toolchain:
+
+```sh
+make -f Makefile.sf2000 platform=sf3000 \
+  MIPS=/path/to/toolchain/bin/mips-mti-linux-gnu- \
+  SYSROOT=/path/to/toolchain/sysroot -j4
+```
+
+This produces `mcpe_libretro.so`. Install it as
+`/mnt/sdcard/cubegm/cores/mcpe_libretro.so`, and copy this repository's `data`
+directory to `/mnt/sdcard/roms/mcpe/data`. Worlds, settings, and
+`froggype.log` are stored under `/mnt/sdcard/roms/mcpe`.
+
 ## Install
 
 - Full walkthrough, with copy commands and checks: **[docs/INSTALL.md](docs/INSTALL.md)**

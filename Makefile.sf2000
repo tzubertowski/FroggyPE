@@ -1,19 +1,40 @@
 TARGET_NAME := mcpe
 platform ?= sf2000
 
+ifeq ($(platform),sf3000)
+MIPS ?= mips-mti-linux-gnu-
+else
 MIPS ?= /opt/mips32-mti-elf/2019.09-03-2/bin/mips-mti-elf-
+endif
 CC := $(MIPS)gcc
 CXX := $(MIPS)g++
 AR := $(MIPS)ar
 RANLIB := $(MIPS)ranlib
+STRIP := $(MIPS)strip
 
+ifeq ($(platform),sf3000)
+SYSROOT ?= $(shell $(CC) -print-sysroot)
+endif
+
+ifeq ($(platform),sf3000)
+BUILD_DIR := build_sf3000
+TARGET := $(TARGET_NAME)_libretro.so
+COMMON_FLAGS := -EL -mips32r2 -mtune=24kc -mfp32 -mhard-float -fPIC -G0 \
+                --sysroot=$(SYSROOT) -Os -ffast-math -fomit-frame-pointer \
+                -ffunction-sections -fdata-sections \
+                -DSF2000 -DSF3000 -DNO_THREADS -DNO_NETWORK -DNO_EGL \
+                -Isrc/platform/sf2000 -Isrc
+LDFLAGS := -shared -EL -mips32r2 -mfp32 -mhard-float -fPIC --sysroot=$(SYSROOT) \
+           -Wl,--gc-sections -Wl,--no-undefined
+LDLIBS := -lm
+else
 BUILD_DIR := build_sf2000
 TARGET := $(TARGET_NAME)_libretro_$(platform).a
-
 COMMON_FLAGS := -EL -march=mips32 -mtune=mips32 -msoft-float -G0 -mno-abicalls -fno-pic \
                 -O2 -ffast-math -fomit-frame-pointer -ffunction-sections -fdata-sections \
                 -DSF2000 -DNO_THREADS -DNO_NETWORK -DNO_EGL \
                 -Isrc/platform/sf2000 -Isrc
+endif
 
 CFLAGS := $(COMMON_FLAGS) -MMD -MP
 CXXFLAGS := $(COMMON_FLAGS) -std=gnu++14 -MMD -MP
@@ -102,9 +123,14 @@ OBJS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRCS_CPP)) $(patsubst %.c,$(BUILD_DI
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
+ifeq ($(platform),sf3000)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+	$(STRIP) --strip-unneeded $@
+else
 	@echo "Creating archive $@"
 	$(AR) rcs $@ $(OBJS)
 	$(RANLIB) $@
+endif
 
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)

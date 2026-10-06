@@ -1,6 +1,6 @@
 #pragma once
 
-#if (defined(SF2000) || defined(PLATFORM_SF2000)) && !defined(PC_TEST)
+#if (defined(SF2000) || defined(PLATFORM_SF2000)) && !defined(PC_TEST) && !defined(SF3000)
 #include <cstdio>
 #include <cstdlib>
 #include <string>

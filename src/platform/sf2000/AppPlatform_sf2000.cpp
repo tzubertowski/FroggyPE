@@ -23,6 +23,10 @@ std::string AppPlatform_sf2000::resolvePath(const std::string& filename)
 {
     static const char* prefixes[] = {
         "",
+#if defined(SF3000)
+        "/mnt/sdcard/roms/mcpe/",
+        "/mnt/sdcard/roms/mcpe/data/",
+#endif
         "/mnt/sda1/mcpe/",
         "/mnt/sda1/mcpe/data/",
         "/mnt/sda1/ROMS/mcpe/",

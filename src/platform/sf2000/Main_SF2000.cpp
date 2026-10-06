@@ -12,16 +12,28 @@
 #include "NinecraftApp.h"
 #include "platform/log.h"
 
-#if defined(PC_TEST)
+#if defined(PC_TEST) || defined(SF3000)
 #include <cstdarg>
 extern "C" void lcd_bsod(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
+#if defined(SF3000)
+    FILE* log = fopen("/mnt/sdcard/roms/mcpe/froggype.log", "a");
+    if (log)
+    {
+        vfprintf(log, format, args);
+        fprintf(log, "\n");
+        fclose(log);
+    }
+#else
     vfprintf(stderr, format, args);
     fprintf(stderr, "\n");
+#endif
     va_end(args);
+#if defined(PC_TEST)
     abort();
+#endif
 }
 #else
 extern "C" void lcd_bsod(const char *format, ...);
@@ -96,6 +108,9 @@ static void game_thread_entry()
 
         s_app = new NinecraftApp();
         std::string storage = "mcpe";
+#if defined(SF3000)
+        storage = "/mnt/sdcard/roms/mcpe";
+#else
         FILE* testFp = fopen("/mnt/sda1/mcpe", "rb");
         if (testFp)
         {
@@ -111,6 +126,7 @@ static void game_thread_entry()
                 storage = "/mnt/sda1/mcpe";
             }
         }
+#endif
         s_app->externalStoragePath = storage;
         s_app->externalCacheStoragePath = storage;
         s_app->App::init(appContext);
@@ -185,7 +201,7 @@ unsigned retro_api_version(void)
 void retro_get_system_info(struct retro_system_info *info)
 {
     std::memset(info, 0, sizeof(*info));
-    info->library_name     = "Minecraft PE (SF2000)";
+    info->library_name     = "Minecraft PE";
     info->library_version  = "0.6.1";
     info->valid_extensions = "pak|zip";
     info->need_fullpath    = false;

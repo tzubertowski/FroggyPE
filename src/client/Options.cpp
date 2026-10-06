@@ -31,7 +31,11 @@ void Options::initDefaultValues() {
 	sensitivity = 0.5f;
 	invertYMouse = false;
 #if defined(SF2000)
+#if defined(SF3000)
+	viewDistance = 7; // Shortest: fit the Linux frontend's smaller free-RAM budget
+#else
 	viewDistance = 3; // Tiny: fastest for GB300
+#endif
 	blockResolution = 1; // 0 = 1/4 (80x60), 1 = 2/4 (160x120), 2 = 3/4 (240x180), 3 = 4/4 (320x240)
 	bobView = false;
 	fancyGraphics = false;
@@ -109,7 +113,11 @@ void Options::initDefaultValues() {
 //  probably create separate subclasses (or read from file). @fix @todo.
 #if defined(ANDROID) || defined(__APPLE__) || defined(RPI) || defined(SF2000)
 #if defined(SF2000)
+#if defined(SF3000)
+    viewDistance = 7;
+#else
     viewDistance = 3;
+#endif
     blockResolution = 1;
     bobView = false;
     fancyGraphics = false;
